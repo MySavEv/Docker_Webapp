@@ -57,6 +57,18 @@ class Member {
         });
     }
 
+    static edit_profile(gender, name, emial, tel, street, subdistrict, district, city, zipcode) {
+        return new Promise((resolve, reject) => {
+            const sql = 'UPDATE Member SET gender = ?, name = ?, email = ?, tel = ?, street = ?, subdistrict = ?, district = ?, city = ?, zipcode = ? WHERE memberID = ?';
+            pool.query(sql, [gender, name, email, tel, street, subdistrict, district, city, zipcode, memberID], (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    }
     // Delete
     static delete(memberID) {
         return new Promise((resolve, reject) => {
