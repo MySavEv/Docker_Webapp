@@ -22,6 +22,26 @@ async function check_token(req,res,next){
     next()
 }
 
+router.post('/verify',(req, res) => {
+    if(req.headers['authorization']){
+        let token = req.headers['authorization'].split(' ')[1]
+        let data = JWTClass.verifyToken(token)
+        if(data)
+        {
+            res.status(200);
+            res.json(new Message('Success','Verify Token Success',data))
+        }
+        else
+        {
+            res.status(400);
+            res.json(new Message('Fail','Token Expire'))
+        }
+    }else{
+        res.status(400)
+        res.json(new Message('Fail','Verify Token Fail'))
+    }
+});
+
 router.post('/login/member', check_token ,(req, res) => {
     const { username, password } = req.body;
     const sql = `SELECT username, memberID FROM AuthMember WHERE username = ? AND password = ?`;

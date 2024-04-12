@@ -1,8 +1,9 @@
 const { Router } = require('express')
-const Member = require('../database/crud/Member')
 const router = require('./r_Auth')
 const pool = require('../database/connect');
-const { update } = require('../database/crud/AuthEmployee');
+
+const Message = require('../util/message')
+const Member = require('../database/crud/Member')
 
 router.post('/member/update', (req, res) => {
     const { memberID, gender, name, email, tel, join_date, birthday, points, street, subdistrict, district, city, zipcode } = req.body;
@@ -24,8 +25,14 @@ router.post('/member/point', (req, res) => {
         .then(result => {
             if (result.length != 1) {
                 res.status(400);
-                res.json(new Message('Fail', err))
+                res.json(new Message('Fail', 'adad'))
+                
             }
-            res.json(new Message('Success', 'Have points', result.points))
+            else
+            {
+                res.json(new Message('Success', 'Have points', {points:result[0].points}))
+            }
         })
 })
+
+module.exports = router
