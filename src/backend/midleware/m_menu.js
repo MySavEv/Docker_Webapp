@@ -1,6 +1,7 @@
 const Message = require('../util/message')
 
 const Menu = require('../database/crud/Menu')
+
 async function checkMenuID(req,res,next) {
     const {menus} = req.body;
     if(menus && !Array.isArray(menus)){

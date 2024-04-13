@@ -4,6 +4,7 @@ const pool = require('../database/connect');
 
 const Message = require('../util/message')
 const Member = require('../database/crud/Member')
+const {verifyTokenEm} = require('../midleware/m_employee')
 
 router.post('/member/update', (req, res) => {
     const { memberID, gender, name, email, tel, join_date, birthday, points, street, subdistrict, district, city, zipcode } = req.body;
@@ -19,7 +20,7 @@ router.post('/member/update', (req, res) => {
         })
 });
 
-router.post('/member/point', (req, res) => {
+router.post('/member/point',verifyTokenEm, (req, res) => {
     const { memberID, points } = req.body;
     Member.findByID(memberID)
         .then(result => {

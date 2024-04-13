@@ -49,4 +49,24 @@ function checkCouponID(req,res,next) {
     }
 }
 
+async function verifyTokenMem(req,res,next) {
+    let token = req.headers['authorization']
+    if(token){
+        token = token.split(' ')[1]
+        try {
+            let result = JWTClass.verifyToken(token);
+            if(result['type'] != 'member')
+                throw new Error('Authen Fail : Require Type Member')
+            req.body['memberID'] = result.EmployeeID;
+            console.log(req.body);
+        } catch (error) {
+            res.status(400);
+            res.json(new Message('Fail',error.message))
+        }
+    }else{
+        res.status(400);
+        res.json(new Message('Fail','Authen Fail'))
+    }
+}
+
 module.exports = {checkUsername,checkMembetID,checkCouponID}

@@ -16,7 +16,7 @@ const {checkMenuID} = require('../midleware/m_menu')
 const {checkEmployeeID} = require('../midleware/m_employee')
 
 
-router.post('/employee/addorder', checkMembetID , checkCouponID , checkMenuID , checkEmployeeID ,async (req, res) => {
+router.post('/employee/addorder',checkMembetID , checkCouponID , checkMenuID , checkEmployeeID ,async (req, res) => {
     const {employeeID, couponID, datetime, menus , memberID} = req.body
     if(memberID && employeeID){
         Customer.create(memberID,'Member')
@@ -49,7 +49,7 @@ router.post('/employee/addorder', checkMembetID , checkCouponID , checkMenuID , 
                         let total_price = await subprice-discount < 0? 0:subprice-discount;
                         Order.update(orderId,{subtotal:subprice,discount:discount,total_price:total_price})
                             .then(result=>{
-                                console.log(orderId);
+                                console.log(result);
                             })
                             .catch(err=>{
                                 res.status(400);

@@ -25,17 +25,15 @@ async function check_token(req,res,next){
 router.post('/verify',(req, res) => {
     if(req.headers['authorization']){
         let token = req.headers['authorization'].split(' ')[1]
-        let data = JWTClass.verifyToken(token)
-        if(data)
-        {
+        try {
+            let data = JWTClass.verifyToken(token)
             res.status(200);
             res.json(new Message('Success','Verify Token Success',data))
-        }
-        else
-        {
+        } catch (error) {
             res.status(400);
-            res.json(new Message('Fail','Token Expire'))
+            res.json(new Message('Fail',error.message))
         }
+
     }else{
         res.status(400)
         res.json(new Message('Fail','Verify Token Fail'))
@@ -56,8 +54,9 @@ router.post('/login/member', check_token ,(req, res) => {
             res.json(new Message('Fail','Login Fail!!'))
             return
         }
-
-        let token = JWTClass.genToken(result[0])
+        let plainTextToken = result[0]
+        plainTextToken['type'] = 'Member'
+        let token = JWTClass.genToken(plainTextToken)
         result[0]['token'] = token
         res.status(200);
         res.json(new Message('Success',"Login Success",result[0]))
@@ -79,8 +78,9 @@ router.post('/login/employee', check_token ,(req, res) => {
             res.json(new Message('Fail','Login Fail!!',))
             return
         }
-
-        let token = JWTClass.genToken(result[0])
+        let plainTextToken = result[0]
+        plainTextToken['type'] = 'Employee'
+        let token = JWTClass.genToken(plainTextToken)
         result[0]['token'] = token
         res.status(200);
         res.json(new Message('Success',"Login Success",result[0]))

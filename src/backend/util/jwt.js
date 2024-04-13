@@ -11,7 +11,7 @@ class JWTClass{
         try {
             return jwt.verify(token, config.jwt_privateKey)
         } catch (error) {
-            return undefined
+            throw error
         }
     }
 }
