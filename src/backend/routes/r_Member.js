@@ -6,6 +6,11 @@ const Member = require('../database/crud/Member')
 const PayMent = require('../database/crud/Payment')
 const router = require('./r_Auth');
 const Payment = require('../database/crud/Payment');
+const router = require('./r_Auth')
+const pool = require('../database/connect');
+const Message = require('../util/message')
+const { verifyTokenEm } = require('../midleware/m_employee')
+
 //edit profile
 router.post('/member/update', (req, res) => {
     const { gender, name, emial, tel, street, subdistrict, district, city, zipcode } = req.body;
@@ -20,16 +25,19 @@ router.post('/member/update', (req, res) => {
             res.json(new Message("Fail", err));
         })
 });
-//check current points
-router.post('/member/points', (req, res) => {
+
+router.post('/member/point', verifyTokenEm, (req, res) => {
     const { memberID, points } = req.body;
     Member.findByID(memberID)
         .then(result => {
             if (result.length != 1) {
                 res.status(400);
-                res.json(new Message('Fail', err))
+                res.json(new Message('Fail', 'adad'))
+
             }
-            res.json(new Message('Success', 'Have points', result.points))
+            else {
+                res.json(new Message('Success', 'Have points', { points: result[0].points }))
+            }
         })
 });
 //see menu
@@ -56,3 +64,6 @@ router.get('/member/payment', (req, res) => {
 router.post('/member/exchange', (req, res) => {
 
 })
+
+
+module.exports = router
