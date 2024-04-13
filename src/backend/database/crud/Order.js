@@ -44,10 +44,15 @@ class Order {
     }
 
     // Update
-    static update(orderID, customerID, employeeID, couponID, datetime, discount, subtotal, total_price, status) {
-        return new Promise((resolve, reject) => {
-            const sql = 'UPDATE `Order` SET customerID = ?, employeeID = ?, couponID = ?, datetime = ?, discount = ?, subtotal = ?, total_price = ?, status = ? WHERE orderID = ?';
-            pool.query(sql, [customerID, employeeID, couponID, datetime, discount, subtotal, total_price, status, orderID], (err, result) => {
+    static update(orderID, fields ) {
+        return new Promise(async (resolve, reject) => {
+            let sub = ''
+            for(i in fields){
+                sub += await `${i} = ${fields[i]},`
+            }
+            sub = await sub.slice(0,-1);
+            const sql = `UPDATE \`Order\` SET ${sub} WHERE orderID = ?`;
+            pool.query(sql, [orderID], (err, result) => {
                 if (err) {
                     reject(err);
                 } else {

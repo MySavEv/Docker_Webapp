@@ -57,6 +57,20 @@ class MemPon {
         });
     }
 
+    // Read by memberID
+    static findByMemberCouponID(memberID,couponID) {
+        return new Promise((resolve, reject) => {
+            const sql = 'SELECT * FROM MemPon WHERE memberID = ? AND couponID = ?';
+            pool.query(sql, [memberID,couponID], (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+    }
+
     // Delete by memberID and couponID
     static delete(memberID, couponID) {
         return new Promise((resolve, reject) => {
