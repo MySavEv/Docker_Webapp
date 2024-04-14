@@ -71,6 +71,31 @@ router.get('/member/order', verifyTokenMem ,(req, res) => {
         res.json(new Message('Success','Order for you',result1))
     })
 })
+
+router.get('/member/coupon',verifyTokenMem,async (req,res)=>{
+    try {
+        const { memberID } = req.body
+        const sql = `SELECT MP.couponID, type, discount, description, expire_date , COUNT(*) AS total
+                    FROM Mempon AS MP
+                    INNER JOIN Coupon AS C ON MP.couponID= C.couponID
+                    WHERE MP.memberID = 2
+                    GROUP BY MP.couponID`
+        pool.query(sql,[memberID],(err,result)=>{
+            if(err){
+                res.status(500)
+                res.json(new Message('Fail','Server Error'))
+            }else{
+                res.status(200)
+                res.json(new Message('Success','Coupon For member',result))
+            }
+        })
+        // console.log(result);
+    } catch (error) {
+        res.status(500)
+        res.json(new Message('Fail','Server Error'))
+    }
+})
+
 //exchange coupon
 router.post('/member/exchange', verifyTokenMem , checkCouponID,async (req, res) => {
     try {
