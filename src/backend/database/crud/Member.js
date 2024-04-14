@@ -43,6 +43,20 @@ class Member {
         });
     }
 
+    // Read by memberID
+    static findPointByID(memberID) {
+        return new Promise((resolve, reject) => {
+            const sql = 'SELECT memberID, points FROM Member WHERE memberID = ?';
+            pool.query(sql, [memberID], (err, results) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+    }
+
     // Update
     static update(memberID, gender, name, email, tel, join_date, birthday, points, street, subdistrict, district, city, zipcode) {
         return new Promise((resolve, reject) => {

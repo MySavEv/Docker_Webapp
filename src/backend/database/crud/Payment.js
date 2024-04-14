@@ -43,6 +43,19 @@ class Payment {
         });
     }
 
+    // Read by paymentID
+    static findByOrderID(orderID) {
+        return new Promise((resolve, reject) => {
+            const sql = 'SELECT * FROM Payment WHERE orderID = ?';
+            pool.query(sql, [orderID], (err, results) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+    }
     // Update
     static update(paymentID, orderID, method, amount, status, datetime, successdatetime) {
         return new Promise((resolve, reject) => {

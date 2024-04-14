@@ -12,14 +12,18 @@ const router = Router();
 async function check_token(req,res,next){
     if(req.headers['authorization']){
         let token = await req.headers['authorization'].split(' ')[1]
-        if(JWTClass.verifyToken(token))
-        {
+        try {
+            let s = JWTClass.verifyToken(token)
             res.status(400);
             res.json(new Message('Fail','You Have Token?'))
-            return
+        } catch (error) {
+            next()
         }
     }
-    next()
+    else
+    {
+        next()
+    }
 }
 
 router.post('/verify',(req, res) => {
@@ -40,7 +44,7 @@ router.post('/verify',(req, res) => {
     }
 });
 
-router.post('/login/member', check_token ,(req, res) => {
+router.post('/login/member',(req, res) => {
     const { username, password } = req.body;
     const sql = `SELECT username, memberID FROM AuthMember WHERE username = ? AND password = ?`;
     pool.query(sql, [username, password], (err, result) => {
@@ -55,7 +59,7 @@ router.post('/login/member', check_token ,(req, res) => {
             return
         }
         let plainTextToken = result[0]
-        plainTextToken['type'] = 'Member'
+        plainTextToken['type'] = 'member'
         let token = JWTClass.genToken(plainTextToken)
         result[0]['token'] = token
         res.status(200);
@@ -63,7 +67,7 @@ router.post('/login/member', check_token ,(req, res) => {
     });
 });
 
-router.post('/login/employee', check_token ,(req, res) => {
+router.post('/login/employee', (req, res) => {
     const { username, password } = req.body;
     const sql = `SELECT username, EmployeeID FROM AuthEmployee WHERE username = ? AND password = ?`;
     pool.query(sql, [username, password], (err, result) => {
@@ -79,7 +83,7 @@ router.post('/login/employee', check_token ,(req, res) => {
             return
         }
         let plainTextToken = result[0]
-        plainTextToken['type'] = 'Employee'
+        plainTextToken['type'] = 'employee'
         let token = JWTClass.genToken(plainTextToken)
         result[0]['token'] = token
         res.status(200);

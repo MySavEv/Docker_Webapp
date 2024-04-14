@@ -4,7 +4,7 @@ const config = require('./config')
 class JWTClass{
 
     static genToken(data){
-        return jwt.sign(data,config.jwt_privateKey, { expiresIn: 60 });
+        return jwt.sign(data,config.jwt_privateKey, { expiresIn: 60*60 });
     }
 
     static verifyToken(token){

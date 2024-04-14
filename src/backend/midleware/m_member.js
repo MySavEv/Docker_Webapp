@@ -2,6 +2,8 @@ const Message = require('../util/message')
 
 const Member = require('../database/crud/Member')
 const Coupon = require('../database/crud/Coupon')
+const JWTClass = require('../util/jwt')
+
 
 function checkUsername(req,res,next){
     const { username , password } = req.body;
@@ -11,7 +13,7 @@ function checkUsername(req,res,next){
     next()
 }
 
-function checkMembetID(req,res,next) {
+function checkMemberID(req,res,next) {
     const {memberID} = req.body;
     if(memberID){
         Member.findByID(memberID)
@@ -44,6 +46,10 @@ function checkCouponID(req,res,next) {
                     next()
                 }
             })
+            .catch(err=>{
+                res.status(500);
+                res.json(new Message('Fail','Plase Check DdataBase Server'))
+            })
     }else{
         next()
     }
@@ -57,8 +63,8 @@ async function verifyTokenMem(req,res,next) {
             let result = JWTClass.verifyToken(token);
             if(result['type'] != 'member')
                 throw new Error('Authen Fail : Require Type Member')
-            req.body['memberID'] = result.EmployeeID;
-            console.log(req.body);
+            req.body['memberID'] = result.memberID;
+            next()
         } catch (error) {
             res.status(400);
             res.json(new Message('Fail',error.message))
@@ -69,4 +75,4 @@ async function verifyTokenMem(req,res,next) {
     }
 }
 
-module.exports = {checkUsername,checkMembetID,checkCouponID}
+module.exports = {checkUsername,checkMemberID,checkCouponID,verifyTokenMem}

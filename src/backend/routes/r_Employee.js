@@ -11,12 +11,13 @@ const Coupon = require('../database/crud/Coupon')
 const Mempon = require('../database/crud/Mempon')
 const Customer = require('../database/crud/Customer')
 const Member = require('../database/crud/Member')
-const {checkMembetID,checkCouponID} = require('../midleware/m_member')
+
+const {checkMemberID,checkCouponID} = require('../midleware/m_member')
 const {checkMenuID} = require('../midleware/m_menu')
-const {checkEmployeeID} = require('../midleware/m_employee')
+const {checkEmployeeID,verifyTokenEm,checkPaymentID,checkOrderID} = require('../midleware/m_employee')
 
 
-router.post('/employee/addorder',checkMembetID , checkCouponID , checkMenuID , checkEmployeeID ,async (req, res) => {
+router.post('/employee/addorder',verifyTokenEm, checkCouponID , checkMenuID , checkEmployeeID ,async (req, res) => {
     const {employeeID, couponID, datetime, menus , memberID} = req.body
     if(memberID && employeeID){
         Customer.create(memberID,'Member')
@@ -71,6 +72,43 @@ router.post('/employee/addorder',checkMembetID , checkCouponID , checkMenuID , c
     }
     
 });
+
+router.get('/employee/menus',(req,res)=>{
+    Menu.findAll()
+        .then(result=>{
+            res.status(200);
+            res.json(new Message('Success','List of Menu',result))
+        })
+        .catch(err=>{
+            res.status(400);
+            res.json(new Message('Fail','Can\'t find List Menu',err))
+        })
+})
+
+router.post('/employee/confirmpayment',verifyTokenEm,checkOrderID,(req,res)=>{
+    try {
+        const { orderID } = req.body
+        const sql = `UPDATE Payment 
+                    LEFT JOIN \`Order\` ON Order.orderID = Payment.orderID
+                    SET Payment.status = 'success'
+                    WHERE Order.orderID = ?`;
+
+        pool.query(sql,[orderID],(err,result)=>{
+            if(err){
+                res.status(400);
+                res.json(new Message('Fail',err.message));
+            }
+            else
+            {
+                res.status(200);
+                res.json(new Message('Success','Confirm Payment Successful'))
+            }
+        })
+    } catch (error) {
+        res.status(500);
+        res.json(new Error('Fail','Server Error',err))
+    }
+})
 
 
 module.exports = router
