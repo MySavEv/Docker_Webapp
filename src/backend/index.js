@@ -37,6 +37,7 @@ app.use((req, res, next) => {
 app.use('/api',require('./routes/r_Auth'))
 app.use('/api',require('./routes/r_Member'))
 app.use('/api',require('./routes/r_Employee'))
+app.use('/api',require('./routes/r_Manager'))
 
 app.listen(3000, async () => {
   console.log("Server is running on port 3000");

@@ -11,6 +11,7 @@ const { checkCouponID} = require('../midleware/m_member')
 
 const router = require('./r_Auth');
 const Coupon = require('../database/crud/Coupon');
+
 //edit profile
 router.post('/member/update', (req, res) => {
     const { gender, name, emial, tel, street, subdistrict, district, city, zipcode } = req.body;

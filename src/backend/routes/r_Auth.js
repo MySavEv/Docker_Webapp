@@ -69,7 +69,10 @@ router.post('/login/member',(req, res) => {
 
 router.post('/login/employee', (req, res) => {
     const { username, password } = req.body;
-    const sql = `SELECT username, EmployeeID FROM AuthEmployee WHERE username = ? AND password = ?`;
+    const sql = `SELECT username,E.employeeID,email,name,tel,baristaflag,cashierflag,managerflag
+                FROM AuthEmployee AS A
+                INNER JOIN Employee AS E ON A.employeeID = E.employeeID
+                WHERE username = ? AND password = ?`;
     pool.query(sql, [username, password], (err, result) => {
         if (err) {
             res.status(500);
@@ -84,6 +87,11 @@ router.post('/login/employee', (req, res) => {
         }
         let plainTextToken = result[0]
         plainTextToken['type'] = 'employee'
+        plainTextToken.baristaflag = plainTextToken.baristaflag.toString('hex') === '01';
+        plainTextToken.cashierflag = plainTextToken.cashierflag.toString('hex') === '01';
+        plainTextToken.managerflag = plainTextToken.managerflag.toString('hex') === '01';
+        
+        console.log(plainTextToken);
         let token = JWTClass.genToken(plainTextToken)
         result[0]['token'] = token
         res.status(200);
