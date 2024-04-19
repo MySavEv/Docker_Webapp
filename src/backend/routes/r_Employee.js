@@ -1,5 +1,5 @@
 const { Router } = require('express')
-const router = require('./r_Auth')
+const router = Router();
 const pool = require('../database/connect');
 
 const Message = require('../util/message')
@@ -11,10 +11,15 @@ const Coupon = require('../database/crud/Coupon')
 const Mempon = require('../database/crud/Mempon')
 const Customer = require('../database/crud/Customer')
 const Member = require('../database/crud/Member')
+const WithdrawHistory = require('../database/crud/Withdraw_History')
+const StockIngredient = require('../database/crud/Stock_Ingredient')
+const Ingredient = require('../database/crud/Ingredient')
+
 
 const {checkMemberID,checkCouponID} = require('../midleware/m_member')
-const {checkMenuID} = require('../midleware/m_menu')
+const {checkMenuID, checkMenuIngredientID} = require('../midleware/m_menu')
 const {checkEmployeeID,verifyTokenEm,checkPaymentID,checkOrderID} = require('../midleware/m_employee');
+const {checkIngredientID,checkStockId} = require('../midleware/m_ingredient');
 const MemPon = require('../database/crud/Mempon');
 
 //Employees order menus for customers.
@@ -81,19 +86,6 @@ router.post('/employee/addorder',verifyTokenEm, checkCouponID , checkMenuID , ch
     
 });
 
-//List of Menu 
-router.get('/employee/menus',(req,res)=>{
-    Menu.findAll()
-        .then(result=>{
-            res.status(200);
-            res.json(new Message('Success','List of Menu',result))
-        })
-        .catch(err=>{
-            res.status(400);
-            res.json(new Message('Fail','Can\'t find List Menu',err))
-        })
-})
-
 // After Confirm Payment will Add Member points 10% of total_price from Order
 router.post('/employee/payment/confirm',verifyTokenEm,checkOrderID,(req,res)=>{
     try {
@@ -123,5 +115,54 @@ router.post('/employee/payment/confirm',verifyTokenEm,checkOrderID,(req,res)=>{
     }
 })
 
+// After Confirm Payment will Add Member points 10% of total_price from Order
+router.post('/employee/withdraw',verifyTokenEm,checkIngredientID,checkStockId,(req,res)=>{
+    const { employeeID ,ingredientID ,stockID ,comment} = req.body;
+    
+    const sql = `SELECT * 
+                FROM Ingredient AS I
+                INNER JOIN Stock_Ingredient AS S ON I.ingredientID = S.ingredientID
+                WHERE I.ingredientID = ? AND S.stock_quantity > 0
+                ORDER by expire_date ASC`
+    pool.query(sql,[ingredientID],(err,result)=>{
+        if(err){
+            res.status(400);
+            res.json(new Message('Fail',err.message));
+            return;
+        }
+
+        let wd = result[0];
+        const sql2 = `UPDATE Ingredient AS I
+                    SET I.quantity = I.quantity + ?
+                    WHERE ingredientID = ?`
+        pool.query(sql2,[wd.stock_quantity,ingredientID],(err,result)=>{
+            if(err){
+                res.status(400);
+                res.json(new Message('Fail',err.message));
+            }else{
+                WithdrawHistory.create(employeeID,ingredientID,stockID,comment,new Date().toISOString().slice(0, 19).replace('T', ' '))
+                    .then(result=>{
+                        pool.query(`UPDATE Stock_Ingredient 
+                                    SET stock_quantity = null
+                                    WHERE stockID = ?`,[stockID],(err,result)=>{
+                                        if(err){
+                                            res.status(400);
+                                            res.json(new Message('Fail',err.message));
+                                        }else{
+                                            res.status(200);
+                                            res.json(new Message('Success','Withdraw Successful'));
+                                        }
+                                    })
+                    })
+                    .catch(err=>{
+                        res.status(400);
+                        res.json(new Message('Fail',err.message));
+                    })
+                
+                
+            }
+        })
+    })
+})
 
 module.exports = router

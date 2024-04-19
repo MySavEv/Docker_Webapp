@@ -9,7 +9,8 @@ const Mempon = require('../database/crud/Mempon')
 const { verifyTokenMem } = require('../midleware/m_member')
 const { checkCouponID} = require('../midleware/m_member')
 
-const router = require('./r_Auth');
+const { Router } = require('express')
+const router = Router();
 const Coupon = require('../database/crud/Coupon');
 
 //edit profile
@@ -41,18 +42,7 @@ router.post('/member/point', verifyTokenMem, (req, res) => {
             }
         })
 });
-//see menu
-router.get('/member/menu', (req, res) => {
-    Menu.findAll()
-        .then(result=>{
-            res.status(200);
-            res.json(new Message('Success','List of Menu',result))
-        })
-        .catch(err=>{
-            res.status(400);
-            res.json(new Message('Fail','Can\'t find List Menu',err))
-        })
-})
+
 //check order
 router.get('/member/order', verifyTokenMem ,(req, res) => {
     const { memberID} = req.body;

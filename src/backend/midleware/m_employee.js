@@ -63,6 +63,25 @@ async function checkOrderID(req,res,next) {
     }
 }
 
+async function checkStockID(req,res,next) {
+    const { orderID } = req.body;
+    if(orderID){
+        Payment.findByOrderID(orderID)
+            .then(result=>{
+                if(result.length == 0){
+                    res.status(400);
+                    res.json(new Message('Fail','orderID is not Valid'))
+                }
+                else
+                {
+                    next()
+                }
+            })
+    }else{
+        next()
+    }
+}
+
 async function verifyTokenEm(req,res,next) {
     let token = req.headers['authorization']
     if(token){

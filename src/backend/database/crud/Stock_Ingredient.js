@@ -72,4 +72,4 @@ class StockIngredient {
     }
 }
 
-module.exports = router
+module.exports = StockIngredient

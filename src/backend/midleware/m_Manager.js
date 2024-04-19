@@ -11,8 +11,15 @@ async function verifyTokenManager(req,res,next) {
             let result = JWTClass.verifyToken(token);
             if(result['type'] != 'employee' && result.managerflag)
                 throw new Error('Authen Fail Require Type Emploee & Manager')
-            req.body['employeeID'] = result.EmployeeID;
-            next()
+            if(!result.managerflag){
+                res.status(400);
+                res.json(new Message('Fail','Authen Fail Not Manager'))
+            }
+            else
+            {
+                req.body['employeeID'] = result.employeeID;
+                next()
+            }
         } catch (error) {
             res.status(400);
             res.json(new Message('Fail',error.message))

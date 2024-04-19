@@ -46,7 +46,10 @@ router.post('/verify',(req, res) => {
 
 router.post('/login/member',(req, res) => {
     const { username, password } = req.body;
-    const sql = `SELECT username, memberID FROM AuthMember WHERE username = ? AND password = ?`;
+    const sql = `SELECT username,AM.memberID,name,gender,email,tel
+                FROM AuthMember AS AM
+                INNER JOIN Member AS M ON M.memberID = AM.memberID
+                WHERE username = ? AND password = ?`;
     pool.query(sql, [username, password], (err, result) => {
         if (err) {
             res.status(500);
