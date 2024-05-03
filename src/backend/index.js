@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
     // กำหนดโดเมนที่อนุญาตให้เข้าถึง
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost.com');
+    res.setHeader('Access-Control-Allow-Origin', '*');
 
     // กำหนดเมทอดและหัวเรื่องที่อนุญาต
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');

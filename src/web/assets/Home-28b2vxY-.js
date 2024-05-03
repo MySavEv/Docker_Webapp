@@ -1,0 +1,1 @@
+import{c as a,w as o,u as e,o as s,a as t,R as c}from"./index-4dHJFcAk.js";const d={__name:"Home",setup(n){return console.log("123"),console.log("http://localhost:8080"),(r,l)=>(s(),a(e(c),{to:"signin"},{default:o(()=>[t("sadsdaasdasdasd")]),_:1}))}};export{d as default};

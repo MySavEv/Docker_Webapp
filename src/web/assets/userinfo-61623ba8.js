@@ -1,1 +1,0 @@
-import{s}from"./index-c031988c.js";const a=s("info",{state:()=>({status:!1,info:{type:"",username:"",tu_status:"",statusid:"",displayname_th:"นภัส ไถ้บ้านกวย",displayname_en:"",email:"",department:"",faculty:""}}),getters:{getInfo:t=>t.info,getStatus:t=>t.status},actions:{set(t){this.info=t,this.status=!0}}});export{a as u};

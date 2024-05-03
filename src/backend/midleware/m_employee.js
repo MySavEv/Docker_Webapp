@@ -90,7 +90,7 @@ async function verifyTokenEm(req,res,next) {
             let result = JWTClass.verifyToken(token);
             if(result['type'] != 'employee')
                 throw new Error('Authen Fail Require Type Emploee')
-            req.body['employeeID'] = result.EmployeeID;
+            req.body['employeeID'] = result.employeeID;
             next()
         } catch (error) {
             res.status(400);

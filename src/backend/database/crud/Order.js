@@ -44,7 +44,7 @@ class Order {
     }
 
     // Update
-    static update(orderID, fields ) {
+    static async update(orderID, fields ) {
         return new Promise(async (resolve, reject) => {
             let sub = ''
             for(i in fields){

@@ -44,8 +44,12 @@ router.post('/verify',(req, res) => {
     }
 });
 
-router.post('/login/member',(req, res) => {
+router.post('/login/member',async (req, res) => {
     const { username, password } = req.body;
+
+    // const hashpwd = await HashManager.hash(password)
+    // console.log(hashpwd);
+
     const sql = `SELECT username,AM.memberID,name,gender,email,tel
                 FROM AuthMember AS AM
                 INNER JOIN Member AS M ON M.memberID = AM.memberID
@@ -70,8 +74,11 @@ router.post('/login/member',(req, res) => {
     });
 });
 
-router.post('/login/employee', (req, res) => {
+router.post('/login/employee', async (req, res) => {
     const { username, password } = req.body;
+
+    // const hashpwd = await HashManager.hash(password)
+
     const sql = `SELECT username,E.employeeID,email,name,tel,baristaflag,cashierflag,managerflag
                 FROM AuthEmployee AS A
                 INNER JOIN Employee AS E ON A.employeeID = E.employeeID
@@ -103,7 +110,7 @@ router.post('/login/employee', (req, res) => {
     });
 
 router.post('/register/member', check_token , async (req, res) => {
-    const { username, password ,gender, name, email, tel, join_date, birthday, points, street, subdistrict, district, city, zipcode} = await req.body;
+    const { username, password ,gender, name, email, tel, join_date, birthday, street, subdistrict, district, city, zipcode} = await req.body;
     AuthMember.findByUsername(username)
         .then(result=>{
             if(result.length >= 1){
@@ -112,11 +119,11 @@ router.post('/register/member', check_token , async (req, res) => {
                 return
             }
 
-            Member.create(gender, name, email, tel, join_date, birthday, points, street, subdistrict, district, city, zipcode)
+            Member.create(gender, name, email, tel, join_date, birthday, 0, street, subdistrict, district, city, zipcode)
                 .then(async result=>{
                     let memberID = result.insertId
-                    let hashPassword = await HashManager.hash(password);
-                    AuthMember.create(username,memberID,hashPassword)
+                    // let hashPassword = await HashManager.hash(password);
+                    AuthMember.create(username,memberID,password)
                         .then(result=>{
                             res.status(200);
                             res.json(new Message('Success','Register Complete'))

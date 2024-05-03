@@ -2,10 +2,12 @@ const pool = require('../connect')
 
 class Customer {
     // Create
-    static create(memberID, type) {
+    static create(email, join_date, name,tel,salary, birthDay, street, subdistrict, district, city, zipcode, baristaflag, cashierflag, managerflag) {
         return new Promise((resolve, reject) => {
-            const sql = 'INSERT INTO Customer (memberID, type) VALUES (?, ?)';
-            pool.query(sql, [memberID, type], (err, result) => {
+            const sql = `INSERT INTO Employee (email, join_date, name,tel,salary, birthDay, street, subdistrict, district, city, zipcode, baristaflag, cashierflag, managerflag) 
+                        VALUES 
+                        (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?)`
+            pool.query(sql, [email, join_date, name,tel,salary, birthDay, street, subdistrict, district, city, zipcode, baristaflag, cashierflag, managerflag], (err, result) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -18,7 +20,7 @@ class Customer {
     // Read all
     static findAll() {
         return new Promise((resolve, reject) => {
-            const sql = 'SELECT * FROM Customer';
+            const sql = 'SELECT * FROM Employee';
             pool.query(sql, (err, results) => {
                 if (err) {
                     reject(err);
@@ -32,7 +34,7 @@ class Customer {
     // Read by customerID
     static findByID(customerID) {
         return new Promise((resolve, reject) => {
-            const sql = 'SELECT * FROM Customer WHERE customerID = ?';
+            const sql = 'SELECT * FROM Employee WHERE employeeID = ?';
             pool.query(sql, [customerID], (err, results) => {
                 if (err) {
                     reject(err);
@@ -44,10 +46,15 @@ class Customer {
     }
 
     // Update
-    static update(customerID, memberID, type) {
-        return new Promise((resolve, reject) => {
-            const sql = 'UPDATE Customer SET memberID = ?, type = ? WHERE customerID = ?';
-            pool.query(sql, [memberID, type, customerID], (err, result) => {
+    static async update(employeeID, fields ) {
+        return new Promise(async (resolve, reject) => {
+            let sub = ''
+            for(i in fields){
+                sub += await `${i} = ${fields[i]},`
+            }
+            sub = await sub.slice(0,-1);
+            const sql = `UPDATE \`Employee\` SET ${sub} WHERE employeeID = ?`;
+            pool.query(sql, [employeeID], (err, result) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -58,10 +65,10 @@ class Customer {
     }
 
     // Delete
-    static delete(customerID) {
+    static delete(employeeID) {
         return new Promise((resolve, reject) => {
-            const sql = 'DELETE FROM Customer WHERE customerID = ?';
-            pool.query(sql, [customerID], (err, result) => {
+            const sql = 'DELETE FROM Employee WHERE employeeID = ?';
+            pool.query(sql, [employeeID], (err, result) => {
                 if (err) {
                     reject(err);
                 } else {

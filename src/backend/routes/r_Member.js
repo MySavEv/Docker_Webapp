@@ -14,8 +14,23 @@ const router = Router();
 const Coupon = require('../database/crud/Coupon');
 
 //edit profile
-router.post('/member/update', (req, res) => {
-    const { gender, name, emial, tel, street, subdistrict, district, city, zipcode } = req.body;
+router.post('/member/profile',verifyTokenMem, (req, res) => {
+    const { memberID} = req.body;
+    Member.findByID(memberID)
+        .then(result => {
+            res.status(200);
+            res.json(new Message('Success', 'Profile',result));
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(400);
+            res.json(new Message("Fail", err));
+        })
+});
+
+//edit profile
+router.post('/member/update',verifyTokenMem, (req, res) => {
+    const { memberID,gender, name, emial, tel, street, subdistrict, district, city, zipcode } = req.body;
     Member.edit_profile(gender, name, emial, tel, street, subdistrict, district, city, zipcode, memberID)
         .then(result => {
             res.status(200);
@@ -69,7 +84,7 @@ router.get('/member/coupon',verifyTokenMem,async (req,res)=>{
         const sql = `SELECT MP.couponID, type, discount, description, expire_date , COUNT(*) AS total
                     FROM Mempon AS MP
                     INNER JOIN Coupon AS C ON MP.couponID= C.couponID
-                    WHERE MP.memberID = 2
+                    WHERE MP.memberID = ?
                     GROUP BY MP.couponID`
         pool.query(sql,[memberID],(err,result)=>{
             if(err){
@@ -94,34 +109,39 @@ router.post('/member/exchange', verifyTokenMem , checkCouponID,async (req, res) 
         if(!couponID){
             res.status(400);
             res.json(new Message('Fail','Require couponID'))
+            return
+        }else{
+            var mempoint = await Member.findPointByID(memberID);
+            var coupon = await Coupon.findByID(couponID);
+            
+            if(coupon[0].reqpoints > mempoint[0].points){
+                res.status(400);
+                res.json(new Message('Fail','Not enough points!!'))
+                return;
+            }else{
+                const sql = `UPDATE Member SET points = points - ? WHERE memberID = ?`
+                pool.query(sql,[coupon[0].reqpoints,mempoint[0].memberID],(err,result)=>{
+                    if(err){
+                        res.status(400);
+                        res.json(new Message('Fail','Some Thing Error!!',err))
+                    }else{
+                        Mempon.create(memberID,couponID,new Date())
+                        .catch(err=>{
+                            console.log(err);
+                        })
+                        
+                        res.status(200);
+                        res.json(new Message('Success','Exchange Coupon Success!!'))
+                    }
+                    
+                })
+            }
         }
 
-        var mempoint = await Member.findPointByID(memberID);
-        var coupon = await Coupon.findByID(couponID);
-        
-        if(coupon.reqpoints > mempoint.points){
-            res.status(400);
-            res.json(new Message('Fail','Not enough points!!'))
-            return;
-        }
         
         
-        const sql = `UPDATE Member SET points = points - ? WHERE memberID = ?`
-        pool.query(sql,[coupon.reqpoints,mempoint.memberID],(err,result)=>{
-            if(err){
-                res.status(400);
-                res.json(new Message('Fail','Some Thing Error!!',err))
-            }else{
-                Mempon.create(mempoint.memberID,coupon.couponID,new Date())
-                .catch(err=>{
-                    console.log(err);
-                })
-                
-                res.status(200);
-                res.json(new Message('Success','Exchange Coupon Success!!'))
-            }
-            
-        })
+        
+        
         
     } catch (err) {
         res.status(500);
